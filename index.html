@@ -248,7 +248,7 @@ input,select,textarea{font-family:inherit;outline:none}
 <body>
 
 <!-- GIST SETUP MODAL -->
-<div class="modal-bg" id="gist-modal">
+<div class="modal-bg hidden" id="gist-modal">
   <div class="modal" style="max-width:500px">
     <h3>🔗 Connexion GitHub Gist</h3>
     <p style="font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:18px">GitHub Gist sert de base de données — gratuit, 100% dans GitHub. Tout le monde voit les résultats en temps réel.</p>
@@ -1330,20 +1330,19 @@ function showToast(msg, err=false) {
 // INIT
 // ═══════════════════════════════════════════════════════
 (async function init() {
-  // Load saved Gist config from localStorage
   const savedId = GIST_ID || localStorage.getItem('tournament-gist-id');
   const savedToken = localStorage.getItem('tournament-gh-token');
   if (savedToken) ghToken = savedToken;
 
   if (!savedId) {
-    // Show Gist setup modal
+    // Pas de Gist configuré → montrer le modal
+    document.getElementById('gist-modal').classList.remove('hidden');
     setSyncStatus('err', 'Non connecté — configure le Gist');
     return;
   }
 
+  // Gist ID trouvé → se connecter directement
   gistId = savedId;
-  document.getElementById('gist-id-input').value = savedId;
-  document.getElementById('gist-modal').classList.add('hidden');
   updateGistLink();
 
   const hasT = await gistLoad();
@@ -1351,7 +1350,6 @@ function showToast(msg, err=false) {
     renderApp();
     renderPartList();
   } else {
-    // Load local participants if any
     try {
       const s = localStorage.getItem('rp-tournament');
       if (s) { const d=JSON.parse(s); if(d.participants)participants=d.participants; if(d.nextId)nextId=d.nextId; renderPartList(); }
